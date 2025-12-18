@@ -1,6 +1,7 @@
 import './App.css';
 import DATA from './data';
 import CatList from './components/CatList';
+import NewCatForm from './components/NewCatForm';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -44,6 +45,10 @@ const convertFromAPI = (apiCat) => {
   return newCat;
 };
 
+const addCatAPI = (newCat) => {
+  return axios.post(`${kbaseURL}/cats`, newCat)
+    .catch(error => console.log(error));
+}
 const petCatAPI = id => {
   return axios.patch(`${kbaseURL}/cats/${id}/pet`)
     .catch(error => console.log(error));
@@ -90,11 +95,19 @@ function App() {
       });
   };
 
+  const onHandleSubmit = (data) =>{
+    return addCatAPI(data)
+      .then((result) => {
+        return setCatData((prevCats) => [convertFromAPI(result.data), ...prevCats]);
+      });
+  };
+
   const totalPets = countTotalPets(catData);
 
   return (
     <>
       <h2>Total Pets: {totalPets}</h2>
+      <NewCatForm onHandleSubmit={onHandleSubmit}/>
       <CatList
         cats={catData}
         onPetCat={handlePetCat}
